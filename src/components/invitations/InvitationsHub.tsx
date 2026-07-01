@@ -44,6 +44,7 @@ function buildCardData(couple: Couple, events: WeddingEvent[]): CardData {
     websiteUrl: siteUrl,
     hashtag: "",
     specialInstructions: "",
+    couplePhotoUrl: couple.hero_image_url ?? "",
   };
 }
 
