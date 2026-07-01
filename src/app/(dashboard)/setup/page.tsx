@@ -9,7 +9,9 @@ import { GiftingStep } from "@/components/builder/steps/GiftingStep";
 import { WishesStep } from "@/components/builder/steps/WishesStep";
 import { QAStep } from "@/components/builder/steps/QAStep";
 import { BrandingStep } from "@/components/builder/steps/BrandingStep";
-import type { Couple } from "@/lib/types";
+import { InvitationStep } from "@/components/builder/steps/InvitationStep";
+import { GalleryStep } from "@/components/builder/steps/GalleryStep";
+import type { Couple, WeddingEvent } from "@/lib/types";
 
 const STEPS = [
   { label: "Hero" },
@@ -19,11 +21,14 @@ const STEPS = [
   { label: "Well Wishes" },
   { label: "Q&A" },
   { label: "Branding" },
+  { label: "Invitation" },
+  { label: "Gallery" },
 ];
 
 export default function SetupPage() {
   const [step, setStep] = useState(0);
   const [couple, setCouple] = useState<Couple | null>(null);
+  const [events, setEvents] = useState<WeddingEvent[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,12 +36,12 @@ export default function SetupPage() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      const { data } = await supabase
-        .from("couples")
-        .select("*")
-        .eq("user_id", user.id)
-        .single();
-      setCouple(data);
+      const [{ data: coupleData }, { data: eventData }] = await Promise.all([
+        supabase.from("couples").select("*").eq("user_id", user.id).single(),
+        supabase.from("wedding_events").select("*").eq("user_id", user.id).order("position"),
+      ]);
+      setCouple(coupleData);
+      setEvents(eventData ?? []);
       setLoading(false);
     }
     load();
@@ -60,6 +65,8 @@ export default function SetupPage() {
     <WishesStep key="wishes" couple={couple} onUpdate={setCouple} />,
     <QAStep key="qa" couple={couple} />,
     <BrandingStep key="branding" couple={couple} onUpdate={setCouple} />,
+    <InvitationStep key="invitation" couple={couple} events={events} onUpdate={setCouple} />,
+    <GalleryStep key="gallery" couple={couple} onUpdate={setCouple} />,
   ];
 
   return (

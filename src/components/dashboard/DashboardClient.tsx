@@ -9,14 +9,16 @@ import { RSVPTable } from "./RSVPTable";
 import { WishesModeration } from "./WishesModeration";
 import { Analytics } from "./Analytics";
 import { ShareTools } from "./ShareTools";
+import { InvitationsHub } from "@/components/invitations/InvitationsHub";
 import { cn } from "@/lib/utils";
-import type { Couple, RsvpSubmission, WellWish } from "@/lib/types";
-import { LayoutDashboard, Heart, Users, BarChart2, Share2, Settings, LogOut } from "lucide-react";
+import type { Couple, RsvpSubmission, WellWish, WeddingEvent } from "@/lib/types";
+import { LayoutDashboard, Heart, Users, Mail, Share2, LogOut } from "lucide-react";
 
 interface Props {
   couple: Couple;
   rsvps: RsvpSubmission[];
   wishes: WellWish[];
+  events: WeddingEvent[];
   analytics: {
     totalViews: number;
     totalRsvps: number;
@@ -25,16 +27,17 @@ interface Props {
   };
 }
 
-type Tab = "overview" | "rsvps" | "wishes" | "share";
+type Tab = "overview" | "rsvps" | "wishes" | "share" | "invitations";
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "overview", label: "Overview", icon: <LayoutDashboard className="h-4 w-4" /> },
   { id: "rsvps", label: "RSVPs", icon: <Users className="h-4 w-4" /> },
   { id: "wishes", label: "Well Wishes", icon: <Heart className="h-4 w-4" /> },
   { id: "share", label: "Share", icon: <Share2 className="h-4 w-4" /> },
+  { id: "invitations", label: "Invitations", icon: <Mail className="h-4 w-4" /> },
 ];
 
-function DashboardInner({ couple, rsvps, wishes: initialWishes, analytics }: Props) {
+function DashboardInner({ couple, rsvps, wishes: initialWishes, events, analytics }: Props) {
   const router = useRouter();
   const { toast } = useToast();
   const [tab, setTab] = useState<Tab>("overview");
@@ -153,6 +156,7 @@ function DashboardInner({ couple, rsvps, wishes: initialWishes, analytics }: Pro
             />
           )}
           {tab === "share" && <ShareTools couple={couple} siteUrl={siteUrl} />}
+          {tab === "invitations" && <InvitationsHub couple={couple} events={events} />}
         </main>
       </div>
     </div>

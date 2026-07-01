@@ -39,6 +39,28 @@ export type WishStatus = "pending" | "approved" | "rejected";
 export type FontStyle = "serif" | "sans" | "script";
 export type AttendingFor = "bride" | "groom" | "both";
 
+export interface InvitationCard {
+  type: "print" | "digital";
+  templateId: string;
+  data: {
+    brideName: string;
+    groomName: string;
+    weddingDate: string;
+    weddingTime: string;
+    ceremonyVenue: string;
+    ceremonyAddress: string;
+    receptionVenue: string;
+    receptionAddress: string;
+    dressCode: string;
+    rsvpDeadline: string;
+    rsvpEmail: string;
+    websiteUrl: string;
+    hashtag: string;
+    specialInstructions: string;
+    couplePhotoUrl: string;
+  };
+}
+
 export interface Couple {
   id: string;
   user_id: string;
@@ -56,6 +78,8 @@ export interface Couple {
   gift_message: string | null;
   rsvp_deadline: string | null;
   rsvp_required_fields: RsvpRequiredFields;
+  invitation_card: InvitationCard | null;
+  gallery_images: string[];
   created_at: string;
   updated_at: string;
 }

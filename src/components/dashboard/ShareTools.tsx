@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { QRCodeSVG } from "qrcode.react";
+import { useState, useRef } from "react";
+import { QRCodeCanvas } from "qrcode.react";
 import { Copy, Check, MessageCircle, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
@@ -15,6 +15,7 @@ export function ShareTools({ couple, siteUrl }: Props) {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   async function copyLink() {
     await navigator.clipboard.writeText(siteUrl);
@@ -28,6 +29,37 @@ export function ShareTools({ couple, siteUrl }: Props) {
       `You're invited to ${couple.bride_name} & ${couple.groom_name}'s wedding! 🎉\n\nView details and RSVP here: ${siteUrl}`
     );
     window.open(`https://wa.me/?text=${text}`, "_blank");
+  }
+
+  async function downloadQRPdf() {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const { jsPDF } = await import("jspdf");
+    const qrSize = 80;
+    const pageW = 148;
+    const pageH = 148;
+    const pdf = new jsPDF({ unit: "mm", format: [pageW, pageH] });
+
+    pdf.setFillColor(255, 255, 255);
+    pdf.rect(0, 0, pageW, pageH, "F");
+
+    const imgData = canvas.toDataURL("image/png");
+    const x = (pageW - qrSize) / 2;
+    pdf.addImage(imgData, "PNG", x, 16, qrSize, qrSize);
+
+    pdf.setFont("times", "italic");
+    pdf.setFontSize(16);
+    pdf.setTextColor(13, 13, 13);
+    const names = `${couple.bride_name} & ${couple.groom_name}`;
+    pdf.text(names, pageW / 2, 108, { align: "center" });
+
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(7);
+    pdf.setTextColor(120, 120, 120);
+    pdf.text("SCAN TO VISIT OUR WEDDING SITE", pageW / 2, 116, { align: "center" });
+
+    pdf.save(`${couple.bride_name}-${couple.groom_name}-qr.pdf`);
   }
 
   return (
@@ -66,12 +98,13 @@ export function ShareTools({ couple, siteUrl }: Props) {
       {/* QR code */}
       {showQR && (
         <div className="flex flex-col items-center gap-4 p-8 border border-[var(--color-ink)]/10">
-          <QRCodeSVG
+          <QRCodeCanvas
+            ref={canvasRef}
             value={siteUrl}
             size={200}
-            bgColor="transparent"
+            bgColor="#ffffff"
             fgColor="#0D0D0D"
-            includeMargin={false}
+            marginSize={0}
           />
           <div className="text-center">
             <p className="font-script text-2xl">{couple.bride_name} & {couple.groom_name}</p>
@@ -79,21 +112,8 @@ export function ShareTools({ couple, siteUrl }: Props) {
               Scan to visit our wedding site
             </p>
           </div>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => {
-              const svg = document.querySelector("#qr-code-wrapper svg");
-              if (!svg) return;
-              const blob = new Blob([svg.outerHTML], { type: "image/svg+xml" });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = "wedding-qr.svg";
-              a.click();
-            }}
-          >
-            Download QR code
+          <Button size="sm" variant="outline" onClick={downloadQRPdf}>
+            Download QR code (PDF)
           </Button>
         </div>
       )}

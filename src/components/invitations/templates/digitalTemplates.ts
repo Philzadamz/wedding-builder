@@ -1,0 +1,40 @@
+import type { DigitalTemplate } from "../types";
+
+export const DIGITAL_TEMPLATES: DigitalTemplate[] = [
+  {
+    id: "gold-elegance",
+    name: "Gold Elegance",
+    category: "Luxury",
+    coverBg: "linear-gradient(135deg, #1A1007 0%, #2D1F0A 50%, #1A1007 100%)",
+    coverText: "#F5E6C8",
+    coverAccent: "#C9A96E",
+    interiorBg: "#FAF6EE",
+    interiorText: "#1A1007",
+    interiorAccent: "#C9A96E",
+    dividerColor: "#C9A96E",
+  },
+  {
+    id: "floral-romance",
+    name: "Floral Romance",
+    category: "Floral",
+    coverBg: "linear-gradient(135deg, #1B3A2D 0%, #2D5940 50%, #1B3A2D 100%)",
+    coverText: "#F5EDE0",
+    coverAccent: "#E8C4A0",
+    interiorBg: "#F9F5F0",
+    interiorText: "#2D3A1E",
+    interiorAccent: "#7A9E5B",
+    dividerColor: "#9CB97A",
+  },
+  {
+    id: "midnight-luxe",
+    name: "Midnight Luxe",
+    category: "Modern",
+    coverBg: "linear-gradient(135deg, #0A0A1A 0%, #1A1A3A 50%, #0A0A1A 100%)",
+    coverText: "#E8E0FF",
+    coverAccent: "#9B8FE8",
+    interiorBg: "#0D0D20",
+    interiorText: "#E8E0FF",
+    interiorAccent: "#9B8FE8",
+    dividerColor: "#4A4A7A",
+  },
+];

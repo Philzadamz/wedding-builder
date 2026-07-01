@@ -8,6 +8,8 @@ import { RsvpSection } from "./RsvpSection";
 import { GiftingSection } from "./GiftingSection";
 import { QASection } from "./QASection";
 import { GuestFooter } from "./GuestFooter";
+import { InvitationSection } from "./InvitationSection";
+import { GallerySection } from "./GallerySection";
 import type { Couple, WeddingEvent, WellWish, GiftMethod, FAQ } from "@/lib/types";
 
 interface Props {
@@ -32,6 +34,10 @@ export function GuestSite({ couple, events, wishes, giftMethods, faqs }: Props) 
 
         <HeroSection couple={couple} />
 
+        {couple.gallery_images?.length > 0 && (
+          <GallerySection images={couple.gallery_images} />
+        )}
+
         {s.wishes && (
           <WishesSection
             couple={couple}
@@ -42,6 +48,21 @@ export function GuestSite({ couple, events, wishes, giftMethods, faqs }: Props) 
 
         {s.schedule && events.length > 0 && (
           <ScheduleSection events={events} label={n.schedule} />
+        )}
+
+        {couple.invitation_card && (
+          <InvitationSection
+            card={{
+              ...couple.invitation_card,
+              data: {
+                ...couple.invitation_card.data,
+                couplePhotoUrl:
+                  couple.invitation_card.data.couplePhotoUrl ||
+                  couple.hero_image_url ||
+                  "",
+              },
+            }}
+          />
         )}
 
         {s.rsvp && (

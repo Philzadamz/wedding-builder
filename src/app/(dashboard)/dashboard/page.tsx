@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { DashboardClient } from "@/components/dashboard/DashboardClient";
-import type { Couple, RsvpSubmission, WellWish } from "@/lib/types";
+import type { Couple, RsvpSubmission, WellWish, WeddingEvent } from "@/lib/types";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -22,11 +22,13 @@ export default async function DashboardPage() {
     { data: wishData, count: wishCount },
     { count: viewCount },
     { count: pendingCount },
+    { data: eventData },
   ] = await Promise.all([
     supabase.from("rsvp_submissions").select("*", { count: "exact" }).eq("couple_id", couple.id).order("created_at", { ascending: false }),
     supabase.from("well_wishes").select("*", { count: "exact" }).eq("couple_id", couple.id).order("created_at", { ascending: false }),
     supabase.from("page_views").select("*", { count: "exact", head: true }).eq("couple_id", couple.id),
     supabase.from("well_wishes").select("*", { count: "exact", head: true }).eq("couple_id", couple.id).eq("status", "pending"),
+    supabase.from("wedding_events").select("*").eq("couple_id", couple.id).order("position"),
   ]);
 
   return (
@@ -34,6 +36,7 @@ export default async function DashboardPage() {
       couple={couple}
       rsvps={(rsvpData ?? []) as RsvpSubmission[]}
       wishes={(wishData ?? []) as WellWish[]}
+      events={(eventData ?? []) as WeddingEvent[]}
       analytics={{
         totalViews: viewCount ?? 0,
         totalRsvps: rsvpCount ?? 0,
