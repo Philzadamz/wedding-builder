@@ -13,28 +13,48 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("couples")
-    .select("bride_name, groom_name, hero_image_url, tagline")
+    .select("bride_name, groom_name, hero_image_url, tagline, wedding_date")
     .eq("slug", slug)
     .single();
 
-  const couple = data as Pick<Couple, "bride_name" | "groom_name" | "hero_image_url" | "tagline"> | null;
+  const couple = data as Pick<Couple, "bride_name" | "groom_name" | "hero_image_url" | "tagline" | "wedding_date"> | null;
 
   if (!couple) return { title: "Wedding" };
 
   const names = `${couple.bride_name} & ${couple.groom_name}`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://wedding-builder-sage.vercel.app";
+  const pageUrl = `${siteUrl}/${slug}`;
+
+  const dateStr = couple.wedding_date
+    ? new Date(couple.wedding_date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+    : null;
+
+  const description = couple.tagline
+    ?? (dateStr ? `${names} are getting married on ${dateStr}. You're invited!` : `Join us to celebrate the wedding of ${names}.`);
+
+  const images = couple.hero_image_url
+    ? [{ url: couple.hero_image_url, width: 1200, height: 630, alt: `${names} — Wedding` }]
+    : [];
+
   return {
-    title: `${names}'s Wedding`,
-    description: couple.tagline ?? `Join us to celebrate ${names}`,
+    title: `${names} — Wedding`,
+    description,
     openGraph: {
-      title: `${names}'s Wedding`,
-      description: couple.tagline ?? `Join us to celebrate ${names}`,
-      images: couple.hero_image_url ? [{ url: couple.hero_image_url }] : [],
+      type: "website",
+      url: pageUrl,
+      siteName: "Velvet Weddings",
+      title: `${names} — Wedding`,
+      description,
+      images,
+      locale: "en_US",
     },
     twitter: {
       card: "summary_large_image",
-      title: `${names}'s Wedding`,
+      title: `${names} — Wedding`,
+      description,
       images: couple.hero_image_url ? [couple.hero_image_url] : [],
     },
+    metadataBase: new URL(siteUrl),
   };
 }
 
